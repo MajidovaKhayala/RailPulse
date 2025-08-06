@@ -21,7 +21,7 @@ CUSTOM_SOURCES = [
     }
 ]
 
-def scrape_news():
+def scrape_railway_news():
     all_news = []
     for source in CUSTOM_SOURCES:
         try:

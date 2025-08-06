@@ -9,20 +9,21 @@ app = Flask(__name__)
 
 def scrape_news():
     try:
-        url = 'https://www.railwaygazette.com/news'  # Buranı real xəbər mənbəyi ilə əvəz edin
+        # Test üçün saxta məlumat, real URL ilə əvəz edin
+        url = 'https://www.railwaygazette.com/news'
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
-        articles = soup.find_all('div', class_='news-article')  # Selektoru sayta uyğun dəyişdirin
+        articles = soup.find_all('div', class_='news-article')
         news_list = []
         for article in articles:
             title = article.find('h2').text if article.find('h2') else 'Başlıq tapılmadı'
             news_list.append({'title': title})
-        return news_list[:10]  # İlk 10 xəbəri götür
+        return news_list[:10]
     except requests.RequestException as e:
         print(f"Scraping xətası: {e}")
-        return [{'title': 'Xəbərlər yüklənə bilmədi'}]
+        return [{'title': 'Xəbərlər tapılmadı'}]
 
 @app.route('/')
 def index():
@@ -32,6 +33,8 @@ def index():
 @app.route('/export')
 def export_to_pdf():
     news_list = scrape_news()
+    if not news_list:
+        news_list = [{'title': 'Xəbərlər tapılmadı'}]
     rendered = render_template('pdf_template.html', news=news_list)
     pdf = pdfkit.from_string(rendered, False)
     return send_file(

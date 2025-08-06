@@ -24,7 +24,7 @@ NEWS_SOURCES = [
     # }
 ]
 
-def scrape_railway_news():
+def scrape_news(): 
     all_news = []
     
     for source in NEWS_SOURCES:

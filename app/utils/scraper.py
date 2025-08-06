@@ -11,14 +11,14 @@ CUSTOM_SOURCES = [
         "link": {"tag": "a", "attr": "href"}
     },
     # Öz mənbələrinizi buraya əlavə edin
-    {
-        "name": "ADY Özəl Mənbə",
-        "url": "https://corp.ady.az/az/media",
-        "container": {"class_": "news-class"},
-        "title": {"tag": "h3"},
-        "summary": {"tag": "div", "class_": "summary"},
-        "link": {"tag": "a", "attr": "data-url"}
-    }
+    # {
+    #     "name": "ADY Özəl Mənbə",
+    #     "url": "https://corp.ady.az/az/media",
+    #     "container": {"class_": "news-class"},
+    #     "title": {"tag": "h3"},
+    #     "summary": {"tag": "div", "class_": "summary"},
+    #     "link": {"tag": "a", "attr": "data-url"}
+    # }
 ]
 
 def scrape_railway_news():

@@ -1,13 +1,26 @@
-{% extends "base.html" %}
-
-{% block content %}
-<div class="news-app">
-    <h1>RailPulse - Railway News</h1>
-    <div class="controls">
-        <button id="searchBtn">Search News</button>
-        <button id="exportBtn" disabled>Export to PDF</button>
-    </div>
-    <div id="loading">Loading...</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RailPulse</title>
+</head>
+<body>
+    <h1>Dəmir Yolu Xəbərləri</h1>
+    <button id="searchBtn">Xəbərləri Yüklə</button>
     <div id="newsContainer"></div>
-</div>
-{% endblock %}
+
+    <!-- JavaScript əlavə edin -->
+    <script>
+        document.getElementById("searchBtn").addEventListener("click", function() {
+            fetch("/search_news")
+                .then(response => response.json())
+                .then(news => {
+                    let html = "";
+                    news.forEach(item => {
+                        html += `<div><h3>${item.title}</h3><p>${item.summary}</p></div>`;
+                    });
+                    document.getElementById("newsContainer").innerHTML = html;
+                });
+        });
+    </script>
+</body>
+</html>

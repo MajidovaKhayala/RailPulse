@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 def scrape_news():
     try:
-        url = 'https://www.porttechnology.org/port-news/'  # Railway Gazette xəbər səhifəsi
+        url = 'https://www.porttechnology.org/news/us-port-fees-on-china-ships-to-reshape-trade-routes/'  # Railway Gazette xəbər səhifəsi
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }

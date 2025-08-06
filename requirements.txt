@@ -3,3 +3,5 @@ gunicorn==20.1.0
 beautifulsoup4==4.12.0
 requests==2.31.0
 setuptools<81.0.0  # pkg_resources xətasını həll etmək üçün
+werkzeug==2.2.3
+

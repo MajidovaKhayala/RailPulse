@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="news-app">
+    <h1>RailPulse - Railway News</h1>
+    <div class="controls">
+        <button id="searchBtn">Search News</button>
+        <button id="exportBtn" disabled>Export to PDF</button>
+    </div>
+    <div id="loading">Loading...</div>
+    <div id="newsContainer"></div>
+</div>
+{% endblock %}

@@ -10,13 +10,17 @@
     <div class="container">
         <h1 class="my-4">Dəmir Yolu Xəbərləri</h1>
         <a href="{{ url_for('export_to_pdf') }}" class="btn btn-primary mb-3">PDF olaraq ixrac et</a>
-        {% for news in news %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">{{ news.title }}</h5>
+        {% if news %}
+            {% for news_item in news %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ news_item.title }}</h5>
+                </div>
             </div>
-        </div>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <p>Xəbərlər tapılmadı.</p>
+        {% endif %}
     </div>
 </body>
 </html>

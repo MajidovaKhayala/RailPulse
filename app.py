@@ -9,18 +9,36 @@ app = Flask(__name__)
 
 def scrape_news():
     try:
-        # Test üçün saxta məlumat, real URL ilə əvəz edin
-        url = 'https://www.railwaygazette.com/news'  # Sənin istifadə etdiyin saytın xəbər səhifəsi
-        headers = {'User-Agent': 'Mozilla/5.0'}
+        url = 'https://www.railwaygazette.com/news'  # Railway Gazette xəbər səhifəsi
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
         response = requests.get(url, headers=headers)
-        response.raise_for_status()
+        response.raise_for_status()  # Xəta olarsa istisna atır
         soup = BeautifulSoup(response.text, 'html.parser')
-        articles = soup.find_all('div', class_='news-article')
+
+        # Əsas selektor: Railway Gazette üçün
+        articles = soup.find_all('h3', class_='title')
         news_list = []
         for article in articles:
-            title = article.find('h2').text if article.find('h2') else 'Başlıq tapılmadı'
+            title_tag = article.find('a')
+            title = title_tag.text.strip() if title_tag else 'Başlıq tapılmadı'
             news_list.append({'title': title})
-        return news_list[:10]
+
+        # Universial yanaşma: Əgər əsas selektor işləməsə, digər ümumi teqləri yoxla
+        if not news_list:
+            # Alternativ selektorlar
+            for tag in ['h1', 'h2', 'h3', 'h4']:
+                articles = soup.find_all(tag)
+                for article in articles:
+                    title_tag = article.find('a') or article
+                    title = title_tag.text.strip() if title_tag else None
+                    if title and len(title) > 10:  # Qısa başlıqlardan qaçmaq üçün
+                        news_list.append({'title': title})
+                if news_list:
+                    break  # İlk uğurlu teqdən sonra dayandır
+
+        return news_list[:10] if news_list else [{'title': 'Xəbərlər tapılmadı'}]
     except requests.RequestException as e:
         print(f"Scraping xətası: {e}")
         return [{'title': 'Xəbərlər tapılmadı'}]

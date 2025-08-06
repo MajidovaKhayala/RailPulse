@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RailPulse - Dəmir Yolu Xəbərləri</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="container">
@@ -24,3 +25,32 @@
     </div>
 </body>
 </html>
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RailPulse - Dəmir Yolu Xəbərləri</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">Dəmir Yolu Xəbərləri</h1>
+        <a href="{{ url_for('export_to_pdf') }}" class="btn btn-primary mb-3">PDF olaraq ixrac et</a>
+        {% if news %}
+            {% for news_item in news %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ news_item.title }}</h5>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>Xəbərlər tapılmadı.</p>
+        {% endif %}
+    </div>
+</body>
+</html> -->

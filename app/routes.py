@@ -1,15 +1,11 @@
-from app.utils.scraper import scrape_news
+# Bu import sətirini yoxlayın (1-ci sətirdə olmalıdır):
+from app.utils.scraper import scrape_news  # DƏQİQ BU FORMADA OLMALIDIR
 
+# Funksiya çağırışını yoxlayın (heç bir dəyişiklik etməyə ehtiyac yoxdur):
 @main_routes.route('/search_news')
 def search_news():
-    news = scrape_news()
-    return jsonify({
-        "status": "success",
-        "count": len(news),
-        "sources": list(set([n['source'] for n in news])),  # Aktiv mənbələr
-        "news": news
-    })
-
+    news = scrape_news()  # Funksiya adı eyni qalmalıdır
+    return jsonify(news)
 
 # from flask import Blueprint, render_template, jsonify
 # from app.utils.scraper import scrape_railway_news

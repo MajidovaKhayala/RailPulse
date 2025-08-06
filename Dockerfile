@@ -1,16 +1,16 @@
 FROM python:3.9-slim
 
-# wkhtmltopdf quraşdır
+# Install wkhtmltopdf
 RUN apt-get update && apt-get install -y wkhtmltopdf
 
-# İşçi qovluğu təyin et
+# Set working directory
 WORKDIR /app
 
-# Layihə fayllarını köçür
+# Copy project files
 COPY . .
 
-# Asılılıqları quraşdır
+# Install dependencies
 RUN pip install -r requirements.txt
 
-# Gunicorn ilə tətbiqi işə sal
+# Run with Gunicorn
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]

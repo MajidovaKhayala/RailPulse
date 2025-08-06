@@ -1,4 +1,12 @@
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+/* <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+.container {
+    max-width: 100%;
+    padding: 15px;
+}
+.card {
+    margin-bottom: 20px;
+} */
+
 .container {
     max-width: 100%;
     padding: 15px;

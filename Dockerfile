@@ -14,3 +14,5 @@ RUN pip install -r requirements.txt
 
 # Run with Gunicorn
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
+
+RUN pip install --no-cache-dir -r requirements.txt

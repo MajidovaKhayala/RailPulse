@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 def scrape_news():
     try:
-        url = 'https://example.com/news'  # Buranı real xəbər mənbəyi ilə əvəz edin
+        url = 'https://www.railwaygazette.com/news'  # Buranı real xəbər mənbəyi ilə əvəz edin
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(url, headers=headers)
         response.raise_for_status()

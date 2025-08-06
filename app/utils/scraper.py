@@ -12,8 +12,8 @@ CUSTOM_SOURCES = [
     },
     # Öz mənbələrinizi buraya əlavə edin
     {
-        "name": "Özəl Mənbə",
-        "url": "https://example.com/news",
+        "name": "ADY Özəl Mənbə",
+        "url": "https://corp.ady.az/az/media",
         "container": {"class_": "news-class"},
         "title": {"tag": "h3"},
         "summary": {"tag": "div", "class_": "summary"},

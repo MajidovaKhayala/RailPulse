@@ -1,11 +1,14 @@
 from flask import Flask, render_template, request
+from datetime import datetime
 import json
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from dateutil import parser
 
 app = Flask(__name__)
+
 
 def scrape_news():
     with open("config.json", "r", encoding="utf-8") as f:

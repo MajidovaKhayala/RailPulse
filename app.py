@@ -1,14 +1,12 @@
 from flask import Flask, render_template, request
 import json
 import time
+import tempfile
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-import tempfile
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
-from selenium.webdriver.common.by import By
 
 app = Flask(__name__)
 
@@ -26,8 +24,7 @@ def get_webdriver(browser_name="chrome"):
     elif browser_name.lower() == "firefox":
         options = FirefoxOptions()
         options.add_argument("--headless")
-        profile = webdriver.FirefoxProfile()
-        return webdriver.Firefox(firefox_profile=profile, options=options)
+        return webdriver.Firefox(options=options)
 
     elif browser_name.lower() == "edge":
         options = EdgeOptions()
@@ -39,7 +36,7 @@ def get_webdriver(browser_name="chrome"):
 
     else:
         raise ValueError(f"Browser '{browser_name}' dəstəklənmir.")
- 
+
 def scrape_news(browser_name="chrome"):
     with open("config.json", "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -51,7 +48,7 @@ def scrape_news(browser_name="chrome"):
     try:
         for url in urls:
             driver.get(url)
-            time.sleep(7)
+            time.sleep(7)  # Saytı yükləmək üçün gözləyir
 
             selectors = [
                 "h2.headline a",
@@ -81,12 +78,11 @@ def scrape_news(browser_name="chrome"):
 
     return results
 
-
 @app.route("/", methods=["GET", "POST"])
 def index():
     news_data = []
     if request.method == "POST":
-        news_data = scrape_news(browser_name="chrome")  # Və ya firefox, edge
+        news_data = scrape_news()  # istəsən browser="firefox" yaz
     return render_template("index.html", news_data=news_data)
 
 if __name__ == "__main__":

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Xəbərlər</title>
+</head>
+<body>
+    <h1>Son Xəbərlər</h1>
+    {% for source in news_data %}
+        <h2>Sayt: {{ source.url }}</h2>
+        <ul>
+        {% for item in source.headlines %}
+            <li><a href="{{ item.link }}" target="_blank">{{ item.title }}</a></li>
+        {% else %}
+            <li>Xəbər tapılmadı</li>
+        {% endfor %}
+        </ul>
+    {% endfor %}
+</body>
+</html>

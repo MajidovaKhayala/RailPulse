@@ -1,32 +1,26 @@
 <!DOCTYPE html>
-<html lang="az">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Xəbər Axtarışı</title>
+    <title>Xəbər Axtar</title>
 </head>
 <body>
     <h1>Xəbərləri Axtar</h1>
-<form method="POST" action="/search">
-    <input type="text" name="query" placeholder="Axtar...">
-    <button type="submit">Axtar</button>
-</form>
-
+    <form method="post" action="/">
+        <button type="submit">Axtar</button>
+    </form>
 
     {% if news_data %}
-        <h2>Nəticələr:</h2>
+        <h2>Tapılan Xəbərlər:</h2>
         {% for source in news_data %}
-            <h3><a href="{{ source.url }}">{{ source.url }}</a></h3>
-            {% if source.headlines %}
-                <ul>
-                    {% for h in source.headlines %}
-                        <li><a href="{{ h.link }}" target="_blank">{{ h.title }}</a></li>
-                    {% endfor %}
-                </ul>
+            <h3>Sayt: {{ source.url }}</h3>
+            <ul>
+            {% for item in source.headlines %}
+                <li><a href="{{ item.link }}" target="_blank">{{ item.title }}</a></li>
             {% else %}
-                <p style="color:red;">Xəbər tapılmadı.</p>
-            {% endif %}
+                <li>Xəbər tapılmadı</li>
+            {% endfor %}
+            </ul>
         {% endfor %}
     {% endif %}
 </body>
 </html>
-

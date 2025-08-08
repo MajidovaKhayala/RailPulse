@@ -1,19 +1,18 @@
 import os
 import tempfile
-from flask import Flask, render_template, request
-import json
 import time
+import json
+from flask import Flask, render_template, request
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.edge.service import Service as EdgeService
 
 app = Flask(__name__)
 
 def driver_exists(driver_name):
-    # Sadə yoxlama: cari qovluqda fayl varmı?
-    # Yaxud PATH daxilində axtarış edə bilərik.
-    # Burda sadəcə cari qovluqda yoxlayırıq.
     current_dir = os.path.abspath(os.path.dirname(__file__))
     driver_path = os.path.join(current_dir, driver_name)
     return os.path.isfile(driver_path)
@@ -21,7 +20,6 @@ def driver_exists(driver_name):
 def get_webdriver():
     temp_profile = tempfile.mkdtemp()
 
-    # Əvvəlcə chromedriver varsa cəhd et
     if driver_exists("chromedriver.exe"):
         options = ChromeOptions()
         options.add_argument("--headless")
@@ -29,11 +27,11 @@ def get_webdriver():
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument(f"--user-data-dir={temp_profile}")
         try:
-            return webdriver.Chrome(executable_path="chromedriver.exe", options=options)
+            service = ChromeService(executable_path="chromedriver.exe")
+            return webdriver.Chrome(service=service, options=options)
         except Exception as e:
             print("Chrome driver ilə başlatmaq mümkün olmadı:", e)
 
-    # Əgər Chrome mümkün olmadı, edge driver yoxla
     if driver_exists("msedgedriver.exe"):
         options = EdgeOptions()
         options.add_argument("--headless")
@@ -41,11 +39,11 @@ def get_webdriver():
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument(f"--user-data-dir={temp_profile}")
         try:
-            return webdriver.Edge(executable_path="msedgedriver.exe", options=options)
+            service = EdgeService(executable_path="msedgedriver.exe")
+            return webdriver.Edge(service=service, options=options)
         except Exception as e:
             print("Edge driver ilə başlatmaq mümkün olmadı:", e)
 
-    # Əgər heç biri yoxdursa
     raise RuntimeError("Heç bir uyğun browser driver tapılmadı!")
 
 def scrape_news():
@@ -59,7 +57,7 @@ def scrape_news():
     try:
         for url in urls:
             driver.get(url)
-            time.sleep(7)
+            time.sleep(7)  # sayt yüklənməsi üçün gözləmə
 
             selectors = [
                 "h2.headline a",

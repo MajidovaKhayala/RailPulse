@@ -42,10 +42,21 @@ def get_browser_driver():
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    news_data = None
     if request.method == "POST":
         query = request.form.get("query")
-        return f"Sən axtardın: {query}"
-    return render_template("index.html")
+        # news_data-nı query əsasında doldur (və ya sadəcə nümunə kimi)
+        news_data = [
+            {
+                "url": "https://example.com",
+                "headlines": [
+                    {"title": f"{query} nümunə xəbər 1", "link": "#"},
+                    {"title": f"{query} nümunə xəbər 2", "link": "#"},
+                ],
+            }
+        ]
+    return render_template("index.html", news_data=news_data)
+
 
 @app.route("/scrape", methods=["POST"])
 def scrape():

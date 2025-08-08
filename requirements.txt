@@ -1,10 +1,11 @@
 flask
 selenium
+webdriver-manager
 requests
 beautifulsoup4
 python-dateutil
 gunicorn
-webdriver-manager
+
 
 
 

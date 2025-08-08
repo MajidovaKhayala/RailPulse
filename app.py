@@ -1,54 +1,65 @@
+import os
+import tempfile
 from flask import Flask, render_template, request
 import json
 import time
-import tempfile
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
 
 app = Flask(__name__)
 
-def get_webdriver(browser_name="chrome"):
+def driver_exists(driver_name):
+    # Sadə yoxlama: cari qovluqda fayl varmı?
+    # Yaxud PATH daxilində axtarış edə bilərik.
+    # Burda sadəcə cari qovluqda yoxlayırıq.
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    driver_path = os.path.join(current_dir, driver_name)
+    return os.path.isfile(driver_path)
+
+def get_webdriver():
     temp_profile = tempfile.mkdtemp()
 
-    if browser_name.lower() == "chrome":
+    # Əvvəlcə chromedriver varsa cəhd et
+    if driver_exists("chromedriver.exe"):
         options = ChromeOptions()
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument(f"--user-data-dir={temp_profile}")
-        return webdriver.Chrome(options=options)
+        try:
+            return webdriver.Chrome(executable_path="chromedriver.exe", options=options)
+        except Exception as e:
+            print("Chrome driver ilə başlatmaq mümkün olmadı:", e)
 
-    elif browser_name.lower() == "firefox":
-        options = FirefoxOptions()
-        options.add_argument("--headless")
-        return webdriver.Firefox(options=options)
-
-    elif browser_name.lower() == "edge":
+    # Əgər Chrome mümkün olmadı, edge driver yoxla
+    if driver_exists("msedgedriver.exe"):
         options = EdgeOptions()
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument(f"--user-data-dir={temp_profile}")
-        return webdriver.Edge(options=options)
+        try:
+            return webdriver.Edge(executable_path="msedgedriver.exe", options=options)
+        except Exception as e:
+            print("Edge driver ilə başlatmaq mümkün olmadı:", e)
 
-    else:
-        raise ValueError(f"Browser '{browser_name}' dəstəklənmir.")
+    # Əgər heç biri yoxdursa
+    raise RuntimeError("Heç bir uyğun browser driver tapılmadı!")
 
-def scrape_news(browser_name="chrome"):
+def scrape_news():
     with open("config.json", "r", encoding="utf-8") as f:
         data = json.load(f)
         urls = data["urls"]
 
-    driver = get_webdriver(browser_name)
+    driver = get_webdriver()
     results = []
 
     try:
         for url in urls:
             driver.get(url)
-            time.sleep(7)  # Saytı yükləmək üçün gözləyir
+            time.sleep(7)
 
             selectors = [
                 "h2.headline a",
@@ -82,7 +93,7 @@ def scrape_news(browser_name="chrome"):
 def index():
     news_data = []
     if request.method == "POST":
-        news_data = scrape_news()  # istəsən browser="firefox" yaz
+        news_data = scrape_news()
     return render_template("index.html", news_data=news_data)
 
 if __name__ == "__main__":

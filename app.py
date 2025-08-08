@@ -13,26 +13,32 @@ app = Flask(__name__)
 
 def get_browser_driver():
     user_agent = request.headers.get("User-Agent", "").lower()
-    if "edg" in user_agent:  # Microsoft Edge
+    # Edge varsa, onu çalışdırmağa çalış, yoxsa Chrome
+    if "edg" in user_agent:
         try:
             options = EdgeOptions()
             options.add_argument("--headless")
             options.add_argument("--disable-gpu")
             options.add_argument("--no-sandbox")
-            return webdriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()), options=options)
+            options.add_argument("--disable-dev-shm-usage")
+            driver_path = EdgeChromiumDriverManager().install()
+            driver = webdriver.Edge(service=EdgeService(driver_path), options=options)
+            return driver
         except Exception as e:
             print(f"Edge driver ilə başlatmaq mümkün olmadı: {e}")
-            return None
-    else:  # Default Chrome
-        try:
-            options = ChromeOptions()
-            options.add_argument("--headless")
-            options.add_argument("--disable-gpu")
-            options.add_argument("--no-sandbox")
-            return webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
-        except Exception as e:
-            print(f"Chrome driver ilə başlatmaq mümkün olmadı: {e}")
-            return None
+            # Fallback olaraq Chrome ilə davam et
+    try:
+        options = ChromeOptions()
+        options.add_argument("--headless")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        driver_path = ChromeDriverManager().install()
+        driver = webdriver.Chrome(service=ChromeService(driver_path), options=options)
+        return driver
+    except Exception as e:
+        print(f"Chrome driver ilə başlatmaq mümkün olmadı: {e}")
+        return None
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -51,9 +57,11 @@ def scrape():
     if not driver:
         return "Browser driver işə düşmədi"
 
-    driver.get(url)
-    html = driver.page_source
-    driver.quit()
+    try:
+        driver.get(url)
+        html = driver.page_source
+    finally:
+        driver.quit()
 
     soup = BeautifulSoup(html, "html.parser")
     news = [item.get_text(strip=True) for item in soup.select("h2")]

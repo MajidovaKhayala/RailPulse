@@ -4,5 +4,7 @@ requests
 beautifulsoup4
 python-dateutil
 gunicorn
+webdriver-manager
+
 
 

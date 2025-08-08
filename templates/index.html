@@ -6,9 +6,11 @@
 </head>
 <body>
     <h1>Xəbərləri Axtar</h1>
-    <form method="post">
-        <button type="submit">Axtar</button>
-    </form>
+<form method="POST" action="/search">
+    <input type="text" name="query" placeholder="Axtar...">
+    <button type="submit">Axtar</button>
+</form>
+
 
     {% if news_data %}
         <h2>Nəticələr:</h2>
@@ -27,3 +29,4 @@
     {% endif %}
 </body>
 </html>
+

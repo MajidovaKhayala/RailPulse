@@ -1,85 +1,94 @@
+import json
+import time
 from flask import Flask, render_template, request
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.edge.service import Service as EdgeService
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.edge.service import Service as EdgeService
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
-from bs4 import BeautifulSoup
-import requests
 
 app = Flask(__name__)
 
-def get_browser_driver():
-    user_agent = request.headers.get("User-Agent", "").lower()
-    # Edge varsa, onu çalışdırmağa çalış, yoxsa Chrome
-    if "edg" in user_agent:
-        try:
-            options = EdgeOptions()
-            options.add_argument("--headless")
-            options.add_argument("--disable-gpu")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
-            driver_path = EdgeChromiumDriverManager().install()
-            driver = webdriver.Edge(service=EdgeService(driver_path), options=options)
-            return driver
-        except Exception as e:
-            print(f"Edge driver ilə başlatmaq mümkün olmadı: {e}")
-            # Fallback olaraq Chrome ilə davam et
+def get_webdriver():
+    # Sənə uyğun brauzeri seçmək üçün user-agent yoxlaya bilərsən
+    # Burda nümunə üçün Chrome driver seçirik
+    options = ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    
     try:
-        options = ChromeOptions()
-        options.add_argument("--headless")
-        options.add_argument("--disable-gpu")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        driver_path = ChromeDriverManager().install()
-        driver = webdriver.Chrome(service=ChromeService(driver_path), options=options)
+        service = ChromeService(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
         return driver
     except Exception as e:
-        print(f"Chrome driver ilə başlatmaq mümkün olmadı: {e}")
-        return None
+        print("Chrome driver ilə başlatmaq mümkün olmadı:", e)
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    news_data = None
-    if request.method == "POST":
-        query = request.form.get("query")
-        # news_data-nı query əsasında doldur (və ya sadəcə nümunə kimi)
-        news_data = [
-            {
-                "url": "https://example.com",
-                "headlines": [
-                    {"title": f"{query} nümunə xəbər 1", "link": "#"},
-                    {"title": f"{query} nümunə xəbər 2", "link": "#"},
-                ],
-            }
-        ]
-    return render_template("index.html", news_data=news_data)
+    # Əgər Chrome alınmasa, Edge-ə keçə bilərsən:
+    try:
+        options = EdgeOptions()
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
 
+        service = EdgeService(EdgeChromiumDriverManager().install())
+        driver = webdriver.Edge(service=service, options=options)
+        return driver
+    except Exception as e:
+        print("Edge driver ilə başlatmaq mümkün olmadı:", e)
 
-@app.route("/scrape", methods=["POST"])
-def scrape():
-    url = request.form.get("url")
-    if not url:
-        return "URL daxil edin"
+    raise RuntimeError("Heç bir uyğun browser driver tapılmadı!")
 
-    driver = get_browser_driver()
-    if not driver:
-        return "Browser driver işə düşmədi"
+def scrape_news():
+    with open("config.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+        urls = data["urls"]
+
+    driver = get_webdriver()
+    results = []
 
     try:
-        driver.get(url)
-        html = driver.page_source
+        for url in urls:
+            driver.get(url)
+            time.sleep(7)  # sayt yüklənməsi üçün gözləmə
+
+            selectors = [
+                "h2.headline a",
+                "h3.headline a",
+                "h2 a",
+                "h3 a",
+                "article h2 a",
+                "div h3 a"
+            ]
+
+            elements = []
+            for selector in selectors:
+                elements = driver.find_elements(By.CSS_SELECTOR, selector)
+                if elements:
+                    break
+
+            headlines = []
+            for el in elements:
+                title = el.text.strip()
+                link = el.get_attribute("href")
+                if title and link:
+                    headlines.append({"title": title, "link": link})
+
+            results.append({"url": url, "headlines": headlines})
     finally:
         driver.quit()
 
-    soup = BeautifulSoup(html, "html.parser")
-    news = [item.get_text(strip=True) for item in soup.select("h2")]
-    if not news:
-        return "Xəbər tapılmadı (empty result). CSS selector-u yoxla."
-    
-    return "<br>".join(news)
+    return results
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    news_data = []
+    if request.method == "POST":
+        news_data = scrape_news()
+    return render_template("index.html", news_data=news_data)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=10000)
